@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta names="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <title>Visualizer App</title>
+    
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css"></link>
+    <link rel="stylesheet" type="text/css" href="css/main.css"></link>
+
+    <style>
+        /*canvas { position: absolute; top: 110px; }*/
+    </style>
+</head>
+
+<body>
+	<div class="overlay-bg"></div>
+    <div class="wrapper">
+    	<div class="browser-not-supported">browser not supported</div>
+        <div class="device-size-not-supported"></div>
+        <div class="container">
+        	<div class="loader"><img src="images/ajaxLoader.gif"></div>
+            <div class="message"></div>
+            <div class="intro"></div>
+            <div class="instruction"></div>
+            <div class="view-container">
+            	<div class="view-photo-gallery">
+                	<ul></ul>
+                </div>
+            	<div class="view-upload-image-btn"><input type="file"></div>
+                <div class="view-filter-image"></div>
+                <div class="view-edit-image"></div>
+                <div class="view-canvas">
+                	<ul class="view-canvas-editing-tools">
+                    	<!--<li>Shade</li>
+                        <li>Dune Pattern</li>
+                        <li>Textile Pattern</li>
+                        <li>Royale Play Pattern</li>-->
+                        <li id="magic-fill-btn">Magic Fill</li>
+                        <li id="brush-btn">Brush</li>
+                        <li id="erase-btn">Erase</li>
+                        <li id="reset-btn">Reset</li>
+                    </ul>
+                    <div id="magic-fill-slider"></div>
+                	<canvas id="canvas" width="600" height="400"></canvas>
+                    <ul class="view-canvas-file-tools">
+                    	<li><a id="save-btn" download="design.jpg">Save</a></li>
+                        <li><a id="back-btn" href="#">Back</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    	
+        <!--<div class="controllers">
+        	<select id="color_drop_box">
+            	<option value="0xFFFF00">yellow</option>
+                <option value="0xFF0000">red</option>
+                <option value="0x70fa01">green</option>
+                <option value="0x559dff">blue</option>
+            </select>
+            <div id="brush_btn">Brush</div>
+            <div id="erase_btn">Erase</div>
+        </div>-->
+    </div>
+    
+    <script type="text/javascript" src="js/lib_jquery.js"></script>
+    <script type="text/javascript" src="js/lib_jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib_easeljs.min.js"></script>
+	<script type="text/javascript" src="js/lib_tweenjs.min.js"></script>
+	<script type="text/javascript" src="js/lib_preloadjs.min.js"></script>
+	<script type="text/javascript" src="js/lib_bitmapdata.min.js"></script>
+    <script type="text/javascript" src="js/lib_ImageMaskFilter.js"></script>
+    <script type="text/javascript" src="js/lib_floodfill.js"></script>
+    <!-- http://kudox.jp/reference/bitmapdata_for_easeljs/classes/createjs.BitmapData.html -->
+    <!-- http://blog.industrialassets.co.uk/easeljs-filters-transparency-map-filter/ -->
+    <!-- https://github.com/katspaugh/canvas-bucket -->
+    
+    <script type="text/javascript" src="js/Custom_LoaderScreen.js"></script>
+    <script type="text/javascript" src="js/Custom_DrawingScreen.js"></script>
+	<script type="text/javascript" src="js/Custom_Controller.js"></script>
+    <script type="text/javascript" src="js/Custom_Model.js"></script>
+    <script type="text/javascript" src="js/Custom_Main.js"></script>
+</body>
+</html>

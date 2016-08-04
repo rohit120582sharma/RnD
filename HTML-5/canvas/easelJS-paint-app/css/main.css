@@ -1,0 +1,46 @@
+@charset "utf-8";
+/* CSS Document */
+
+*{ margin:0; padding:0; }
+a{ text-decoration:none; }
+
+html {  }
+body{ background-color:#ffffff; }
+
+.overlay-bg{ display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0, 0, 0, 0.5); }
+
+.wrapper{ position:relative; }
+.wrapper .browser-not-supported{ display:none; position:absolute; width:100%; height:100%; background-color:rgba(0, 0, 0, 1); }
+.wrapper .device-size-not-supported{ display:none; position:absolute; width:100%; height:100%; background-color:rgba(0, 0, 0, 1); }
+
+.wrapper .container{ position:relative; display:none; }
+.wrapper .container .loader { display:none; position:absolute; top:0; left:0; width:100%; height:100%; }
+.wrapper .container .loader img { position:relative; display:block; margin:0 auto; }
+
+.wrapper .container .view-container{ display:none; width:100%; max-width:600px; margin:0 auto; border:1px solid red; text-align:center; }
+
+/*.wrapper .container .view-container .view-upload-image-btn{ display:inline-block; background:url('../images/upload_from_system.png') center center; background-color:#532887; background-repeat:no-repeat; }
+.wrapper .container .view-container .view-upload-image-btn input{ opacity:0; width:200px; height:140px; cursor:pointer; }*/
+
+/* Editing tools */
+.wrapper .container .view-container .view-canvas{ display:none; margin:0 auto; background-color:#ffff00; overflow:hidden; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-editing-tools{ overflow:hidden; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-editing-tools li{ float:left; padding:7px; list-style:none; cursor:pointer; font-size:14px; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-editing-tools li:hover{ background-color:#ff0000; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-editing-tools li.active{ background-color:#ff0000; }
+
+.wrapper .container .view-container .view-canvas #canvas{ display:block; background-color:#ffffff; width:100%; }
+.wrapper .container .view-container .view-canvas #canvas.brush{ cursor:url(../images/circular_brush.cur), default; }
+.wrapper .container .view-container .view-canvas #canvas.erase{ cursor:url(../images/circular_eraser.cur), default; }
+.wrapper .container .view-container .view-canvas #canvas.magicfill{ cursor:url(../images/magicfill.cur), default; }
+
+.wrapper .container .view-container .view-canvas #magic-fill-slider{ position:absolute; width:100px; display:none; }
+
+/* File tools */
+.wrapper .container .view-container .view-canvas ul.view-canvas-file-tools{ float:right; overflow:hidden; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-file-tools li{ float:left; list-style:none; cursor:pointer; font-size:14px; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-file-tools li a{ display:block; padding:7px; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-file-tools li a:active{ text-decoration:none; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-file-tools li a:visited{ text-decoration:none; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-file-tools li a:hover{ background-color:#ff0000; }
+.wrapper .container .view-container .view-canvas ul.view-canvas-file-tools li.active{ background-color:#ff0000; }
