@@ -1,0 +1,75 @@
+@font-face {
+	font-family:'Gotham_Book';
+	src:url('../fonts/gotham/book/Gotham-Book.eot');
+	src:url('../fonts/gotham/book/Gotham-Book.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/gotham/book/Gotham-Book.woff') format('woff'),
+		url('../fonts/gotham/book/Gotham-Book.ttf') format('truetype'),
+		url('../fonts/gotham/book/Gotham-Book.svg#Gotham-Book') format('svg');
+	font-weight:normal;
+	font-style:normal;
+}
+@font-face {
+	font-family:'Gotham_Medium';
+	src:url('../fonts/gotham/medium/GothamMedium.eot');
+	src:url('../fonts/gotham/medium/GothamMedium.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/gotham/medium/GothamMedium.woff') format('woff'),
+		url('../fonts/gotham/medium/GothamMedium.ttf') format('truetype'),
+		url('../fonts/gotham/medium/GothamMedium.svg#GothamMedium') format('svg');
+	font-weight:500;
+	font-style:normal;
+}
+@font-face {
+	font-family:'Gotham_Bold';
+	src:url('../fonts/gotham/bold/Gotham-Bold.eot');
+	src:url('../fonts/gotham/bold/Gotham-Bold.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/gotham/bold/Gotham-Bold.woff') format('woff'),
+		url('../fonts/gotham/bold/Gotham-Bold.ttf') format('truetype'),
+		url('../fonts/gotham/bold/Gotham-Bold.svg#Gotham-Bold') format('svg');
+	font-weight:bold;
+	font-style:normal;
+}
+@font-face {
+	font-family:'Gotham_Rounded_Bold';
+	src:url('../fonts/gotham/rounded-bold/GothamRounded-Bold.eot');
+	src:url('../fonts/gotham/rounded-bold/GothamRounded-Bold.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/gotham/rounded-bold/GothamRounded-Bold.woff') format('woff'),
+		url('../fonts/gotham/rounded-bold/GothamRounded-Bold.ttf') format('truetype'),
+		url('../fonts/gotham/rounded-bold/GothamRounded-Bold.svg#GothamRounded-Bold') format('svg');
+	font-weight:bold;
+	font-style:normal;
+}
+
+@font-face {
+    font-family: 'ahellyaregular';
+    src: url('../fonts/ahellya/ahellya-webfont.eot');
+    src: url('../fonts/ahellya/ahellya-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/ahellya/ahellya-webfont.woff2') format('woff2'),
+         url('../fonts/ahellya/ahellya-webfont.woff') format('woff'),
+         url('../fonts/ahellya/ahellya-webfont.ttf') format('truetype'),
+         url('../fonts/ahellya/ahellya-webfont.svg#ahellyaregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+/*@font-face {
+    font-family: 'CallunaSansRegular';
+    src: url('../fonts/calluna/calluna-sans-regular.eot');
+    src: url('../fonts/calluna/calluna-sans-regular.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/calluna/calluna-sans-regular.woff') format('woff'),
+         url('../fonts/calluna/calluna-sans-regular.ttf') format('truetype'),
+         url('../fonts/calluna/calluna-sans-regular.svg#webfontuploaded_file') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}*/
+
+@font-face {
+    font-family: 'NeutraText';
+    src: url('../fonts/neutraface/NeutraText-Book.eot?');
+    src:url('../fonts/neutraface/NeutraText-Book.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/neutraface/NeutraText-Book.woff') format('woff'),
+        url('../fonts/neutraface/NeutraText-Book.ttf') format('truetype'),
+        url('../fonts/neutraface/NeutraText-Book.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
