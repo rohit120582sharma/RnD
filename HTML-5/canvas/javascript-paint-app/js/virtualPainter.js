@@ -4,14 +4,14 @@ $(function() {
   /* ********************** Variables ********************** */
   /* ****************************************************************** */
   var colorThreshold = 20,
-      blurRadius = 5,
-      simplifyTolerant = 0,
+      blurRadius = 10,
+      simplifyTolerant = 1,
       simplifyCount = 0,
       hatchLength = 4,
       hatchOffset = 0,
       imageInfo = null,
       cacheInd = null,
-      cacheInds = [],      
+      cacheInds = [],
       downPoint = null,
       mask = null,
       masks = [],
@@ -20,8 +20,9 @@ $(function() {
       cirRadius = 10,
       currentThreshold = colorThreshold,
       toolType = "",
-      selectedImage,
       paintCanvas,
+      imgCanvas,
+      grayImgCanvas,
       drawingCanvas,
       selectionCanvas,
       historyArr,
@@ -32,69 +33,71 @@ $(function() {
   /* ****************************************************************** */
   /* ********************** Controllers ********************** */
   /* ****************************************************************** */
-  // ------------------ upload button ------------------
-  $("#uploadImage").click(function(e) {
-    e.preventDefault();
-    $('#upload').trigger("click");
-  });
-  $('#upload').on('change', function () {
-    var inp = this;
-    if (inp.files && inp.files[0]) {
-      var reader = new FileReader();
-      reader.onload = function (e) {
-        var img = $('#test');
-        img.attr('src', e.target.result);
-        
-        img.on('load', function() {
-          resetCache();
-
-          selectedImage = img[0];
-          paintCanvas = $('#paintCanvas')[0];
-          drawingCanvas = document.createElement('canvas');
-          selectionCanvas = document.createElement('canvas');
-
-          imageInfo = {
-            width: img.width(),
-            height: img.height(),
-            context: selectionCanvas.getContext("2d")
-          };
-          paintCanvas.width = imageInfo.width;
-          paintCanvas.height = imageInfo.height;
-          drawingCanvas.width = imageInfo.width;
-          drawingCanvas.height = imageInfo.height;
-          selectionCanvas.width = imageInfo.width;
-          selectionCanvas.height = imageInfo.height;
-
-          var tempCanvas = document.createElement('canvas')
-          var tempCtx = tempCanvas.getContext("2d");
-          tempCanvas.width = imageInfo.width;
-          tempCanvas.height = imageInfo.height;
-          tempCtx.drawImage(selectedImage, 0, 0);
-          imageInfo.data = tempCtx.getImageData(0, 0, imageInfo.width, imageInfo.height).data;
-
-          $("#magic-btn").trigger("click");
-          resetHistory();
-          drawPaint();
-          eraseAction();
-        });
-      };
-      reader.readAsDataURL(inp.files[0]);
+  window.snapSelectedImage = snapSelectedImage;
+  window.snapWebCamVideo = snapWebCamVideo;
+  // ------------------ Draw Image Handler ------------------
+  function snapSelectedImage(src){
+    var img = new Image();
+    img.onload=function(){
+      initiatePaintApp(img, img.width, img.height);
     }
-  });
+    //src = "http://stackoverflow.com/questions/22097747/getimagedata-error-the-canvas-has-been-tainted-by-cross-origin-data";
+    //img.crossOrigin = "Anonymous";
+    img.src = src;
+  }
+  // ------------------ Draw video hanlder ------------------
+  function snapWebCamVideo(video){
+    initiatePaintApp(video, video.videoWidth, video.videoHeight);
+  }
+  // ------------------ Initiate and drawing canvas handler ------------------
+  function initiatePaintApp(src, srcWidth, srcHeight){
+    resetCache();
 
-  // ------------------ blur button ------------------
-  $('#blur').on('change keyup', function () {
-    blurRadius = Number($(this).val()) || 0;
-    magic();
-  });
+    paintCanvas = $('#paintCanvas')[0];
+    imgCanvas = document.createElement('canvas');
+    grayImgCanvas = document.createElement('canvas');
+    drawingCanvas = document.createElement('canvas');
+    selectionCanvas = document.createElement('canvas');
 
-  // ------------------ thresold button ------------------
-  $('#threshold').on('change keyup', function () {
-    currentThreshold = Number($(this).val()) || 0;
-    magic();
-  });
+    imageInfo = {
+      width: srcWidth,
+      height: srcHeight,
+      context: selectionCanvas.getContext("2d")
+    };
+    imgCanvas.width = imageInfo.width;
+    imgCanvas.height = imageInfo.height;
+    grayImgCanvas.width = imageInfo.width;
+    grayImgCanvas.height = imageInfo.height;
+    paintCanvas.width = imageInfo.width;
+    paintCanvas.height = imageInfo.height;
+    drawingCanvas.width = imageInfo.width;
+    drawingCanvas.height = imageInfo.height;
+    selectionCanvas.width = imageInfo.width;
+    selectionCanvas.height = imageInfo.height;
 
-  // ------------------ paint canvas button ------------------
+    imgCanvas.getContext("2d").drawImage(src, 0, 0);
+    grayImgCanvas.getContext("2d").drawImage(src, 0, 0);
+
+    var tempCanvas = document.createElement('canvas')
+    var tempCtx = tempCanvas.getContext("2d");
+    tempCanvas.width = imageInfo.width;
+    tempCanvas.height = imageInfo.height;
+    tempCtx.drawImage(imgCanvas, 0, 0);
+    imageInfo.data = tempCtx.getImageData(0, 0, imageInfo.width, imageInfo.height).data;
+
+    $("#magic-btn").trigger("click");
+    grayCanvas(grayImgCanvas);
+    resetHistory();
+    drawPaint();
+    eraseAction();
+  }
+
+
+
+  /* --------------------------------------------------- */
+  /* --------------- Button Handlers --------------- */
+  /* --------------------------------------------------- */
+  // canvas mouse-click handler
   $('#paintCanvas').on('click', function(e){
     var p = $(e.target).offset(),
         x = Math.round(e.pageX - p.left),
@@ -107,22 +110,32 @@ $(function() {
     }
   });
 
-  // ------------------ magic button ------------------
+  // tools handlers
+  /* blur */
+  $('#blur').on('change keyup', function () {
+    blurRadius = Number($(this).val()) || 0;
+    magic();
+  });
+  /* threshold */
+  $('#threshold').on('change keyup', function () {
+    currentThreshold = Number($(this).val()) || 0;
+    magic();
+  });
+  /* magic tool */
   $("#magic-btn").bind("click", function(){
     toolType = "magic";
     resetBtnStatus();
     $(this).addClass("active");
     return false;
   });
-
-  // ------------------ erase button ------------------
+  /* erase tool */
   $("#erase-btn").bind("click", function(){
     toolType = "erase";
     resetBtnStatus();
     $(this).addClass("active");
     return false;
   });
-
+  /* undo & redo tool */
   $("#undo-btn").bind("click", function(){
     undoHistory();
     return false;
@@ -131,8 +144,7 @@ $(function() {
     redoHistory()
     return false;
   });
-
-  // ------------------ reset button ------------------
+  /* reset tool */
   $("#reset-btn").bind("click", function(){
     var ctx = imageInfo.context;
     ctx.clearRect(0, 0, imageInfo.width, imageInfo.height);
@@ -207,6 +219,26 @@ $(function() {
 
     //return the new canvas
     return newCanvas;
+  }
+
+  // ------------------ gray canvas ------------------
+  function grayCanvas(canvas) {
+    var ctx = canvas.getContext("2d");
+    var imageData = ctx.getImageData(0, 0, imageInfo.width, imageInfo.height);
+    var data = imageData.data;
+
+    for(var i = 0; i < data.length; i += 4) {
+      var brightness = 0.34 * data[i] + 0.5 * data[i + 1] + 0.16 * data[i + 2];
+      // red
+      data[i] = brightness;
+      // green
+      data[i + 1] = brightness;
+      // blue
+      data[i + 2] = brightness;
+    }
+
+    // overwrite original image
+    ctx.putImageData(imageData, 0, 0);
   }
 
   // ************************ Magic Fill ************************
@@ -286,11 +318,10 @@ $(function() {
             ctx.lineTo(ps[j].x, ps[j].y);
           }
         }
-      }
-      
-      //selectedColor = "#778B57";
+      }      
       ctx.fillStyle = selectedColor;
       ctx.fill();
+
       //outer
       ctx.beginPath();
       for (i = 0; i < cs.length; i++) {
@@ -375,9 +406,31 @@ $(function() {
     var ctx = paintCanvas.getContext("2d");
     ctx.save();
     ctx.clearRect(0, 0, imageInfo.width, imageInfo.height);
-    ctx.drawImage(selectedImage, 0, 0, imageInfo.width, imageInfo.height);
-    ctx.globalCompositeOperation = "overlay";
-    ctx.drawImage(selectionCanvas, 0, 0);
+    ctx.drawImage(imgCanvas, 0, 0, imageInfo.width, imageInfo.height);
+
+    var blendCanvas = document.createElement("canvas");
+    var ctxBlend = blendCanvas.getContext("2d");
+    blendCanvas.width = imageInfo.width;
+    blendCanvas.height = imageInfo.height;
+    ctxBlend.save();
+    ctxBlend.clearRect(0, 0, imageInfo.width, imageInfo.height);
+    ctxBlend.drawImage(grayImgCanvas, 0, 0, imageInfo.width, imageInfo.height);
+    ctxBlend.globalCompositeOperation = "overlay";
+    ctxBlend.drawImage(selectionCanvas, 0, 0, imageInfo.width, imageInfo.height);
+    ctxBlend.restore();
+
+    var clippedCanvas = document.createElement("canvas");
+    var ctxClipped = clippedCanvas.getContext("2d");
+    clippedCanvas.width = imageInfo.width;
+    clippedCanvas.height = imageInfo.height;
+    ctxClipped.save();
+    ctxClipped.clearRect(0, 0, imageInfo.width, imageInfo.height);
+    ctxClipped.drawImage(selectionCanvas, 0, 0, imageInfo.width, imageInfo.height);
+    ctxClipped.globalCompositeOperation = 'source-in';
+    ctxClipped.drawImage(blendCanvas, 0, 0, imageInfo.width, imageInfo.height);
+    ctxClipped.restore();
+
+    ctx.drawImage(clippedCanvas, 0, 0, imageInfo.width, imageInfo.height);
     ctx.restore();
   }
 
@@ -387,12 +440,12 @@ $(function() {
 
 
   // ------------------ choose shade action ------------------
-  $('.color-palette span').click(function(){
+  /*$('.color-palette span').click(function(){
     var background=$(this).css("background-color");
     background = hexc(background);
     selectedColor = background;
-  });
-   var selectedColor;
+  });*/
+  window.selectedColor;
   function hexc(colorval) {
     var parts = colorval.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
     delete(parts[0]);

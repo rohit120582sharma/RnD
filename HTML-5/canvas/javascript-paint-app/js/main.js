@@ -24,6 +24,11 @@ $(document).ready(function(e) {
             $(this).parent('li').toggleClass('open');
         });
         
+        //Home Carousel    
+        if($('#home-slider').length){
+            $('#home-slider').slide();
+        }
+        
         //==========About Us Slider==========//
         $('#sliderShow').click(function(e) {
             e.preventDefault();
@@ -70,6 +75,32 @@ $(document).ready(function(e) {
             $('#slider-navigation li').removeClass('active');
             $('#slider-navigation li').eq(index).addClass('active');
         }
+        
+        //color therapy carousel
+        $('#propertyListSlider').slick({
+            infinite: false,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            arrows:false,
+            dots:false,
+            draggable:false,
+            swipe:false,
+            touchMove:false
+        });
+		
+		//========== COLOR THERAPY ==========//
+        $('#colorTherapySlider').slick({
+            infinite: false,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            arrows:false,
+            dots:false,
+            draggable:false,
+            swipe:false,
+            touchMove:false,
+            adaptiveHeight:true,
+            fade:true
+        });
 		
 		$("input[name='propertyList']").change(function(){
             if($('#colorTherapySlider').parent('.stepWrapper').find('.arrowBtns .nextBtn').attr('gotoSlide')==='' && !$('#colorTherapySlider').parent('.stepWrapper').find('.alertText').hasClass('hide')){
@@ -144,16 +175,233 @@ $(document).ready(function(e) {
 			$('.sectionWrapper.inspirationSection').addClass('hidden');
 		});
 		
+		//========== COLOR PICKER ==========//
+        var isColorPickerApp = $("#color-picker-app").length;
+        $('#colorPickerSlider').on('beforeChange', function(event, slick, currentSlide, nextSlide){
+            resetControllersHandler(nextSlide);
+        });
+        $('#colorPickerSlider').slick({
+            infinite: false,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            arrows:false,
+            dots:false,
+            draggable:false,
+            swipe:false,
+            touchMove:false,
+            adaptiveHeight:true,
+            fade:true
+        });
 		$("#colorPickerSlider input[name='propertyType']").click(function(){
              var slideGo = $(this).val();
 			 $('#colorPickerSlider').slick('slickGoTo', slideGo);
 			 $('#colorPickerSlider').parent('.stepWrapper').find('.arrowBtns .prevBtn').css('display','inline-block');
 		});
-		
 		$('#colorPickerSlider').parent('.stepWrapper').find('.arrowBtns .prevBtn').click(function(e) {
             e.preventDefault();
 			$('#colorPickerSlider').slick('slickGoTo', '0');
 			$("#colorPickerSlider input[name='propertyType']").removeAttr('checked');
+        });
+        $('#colorPickerSlider').parent('.stepWrapper').find('.arrowBtns .nextBtn').click(function(e) {
+            e.preventDefault();
+            var currSlideIndex = $(this).closest(".slick-slide").index();
+            if(!$(this).hasClass("disabled")){
+                if(currSlideIndex == 1){
+                    showVisulizerViewHandler();
+                }else if(currSlideIndex == 2){
+                    imageURLHandler();
+                }else if(currSlideIndex == 3){
+                    videoShotHandler();
+                    stopStream();
+                    showVisulizerViewHandler();
+                }
+            }
+        });
+        
+        /* image input button action */
+        $("#uploadImage").click(function(e) {
+            $(".stepsContainer").show();
+            $(".paintAppContainer").hide();
+            resetControllersHandler(1);
+            gotoSlideHandler(1);
+            return false;
+        });
+        $("#loadImageFromURL").click(function(e) {
+            $(".stepsContainer").show();
+            $(".paintAppContainer").hide();
+            resetControllersHandler(2);
+            gotoSlideHandler(2);
+            return false;
+        });
+        $("#loadImageFromCam").click(function(e) {
+            $(".stepsContainer").show();
+            $(".paintAppContainer").hide();
+            resetControllersHandler(3);
+            gotoSlideHandler(3);
+            return false;
+        });
+        
+        /* API */
+        function gotoSlideHandler(slideIndex){
+            $('#colorPickerSlider').slick('slickGoTo', slideIndex);
+        }
+        function showVisulizerViewHandler(){
+            if($('.stepsContainer').length){
+                $('.stepsContainer').hide();
+                $('.paintAppContainer').show(function(){
+                    if(isColorPickerApp){
+                        $(window).trigger("resize");
+                    }
+                });
+            }
+        }
+        function resetControllersHandler(slideIndex){
+            var slickSlide = $('#colorPickerSlider').find(".slick-slide").eq(slideIndex);
+            slickSlide.find(".nextBtn").addClass('disabled');
+            stopStream();
+            if(slideIndex == 1){
+                $("#uploadPicInput").val("");
+                $("#uploadFileInfo").val("");
+            }else if(slideIndex == 2){
+                $("#uploadFileInfo2").val("");
+            }else if(slideIndex == 3){
+                startStream();
+            }
+        }
+        function uploadPicHandler(){
+            $('#uploadFileInfo').val($("#uploadPicInput").val());
+            $('#colorPickerSlider').find(".slick-slide").eq(1).find(".nextBtn").removeClass('disabled');
+        }
+        function urlInputHandler(){
+            var inputLen = $("#uploadFileInfo2").val().length;
+            $('#colorPickerSlider').find(".slick-slide").eq(2).find(".nextBtn").addClass('disabled');
+            if(inputLen){
+                $('#colorPickerSlider').find(".slick-slide").eq(2).find(".nextBtn").removeClass('disabled');
+            }
+        }
+        window.uploadPicHandler = uploadPicHandler;
+        window.urlInputHandler = urlInputHandler;
+
+        // Image and Camera
+        $('#uploadPicInput').on('change', function () {
+            var inp = this;
+            if (inp.files && inp.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    if(isColorPickerApp){
+                        $('#imageHolder').attr('src', e.target.result);
+                    }else if(window.snapSelectedImage){
+                        snapSelectedImage(e.target.result);
+                    }
+                };
+                reader.readAsDataURL(inp.files[0]);
+            }
+        });
+        
+        var video = document.getElementById('webVideo');
+        var videoStream = null;
+        function log(text){
+        }
+        function noStream(){
+            log('Access to camera was denied!');
+        }
+        function gotStream(stream){
+            $('#colorPickerSlider').find(".slick-slide").eq(3).find(".nextBtn").removeClass('disabled');
+            videoStream = stream;
+            log('Got stream.');
+            video.onerror = function (){
+                log('video.onerror');
+                if (video) stopStream();
+            };
+            stream.onended = noStream;
+            if (window.webkitURL) video.src = window.webkitURL.createObjectURL(stream);
+            else if (video.mozSrcObject !== undefined){//FF18a
+                video.mozSrcObject = stream;
+                video.play();
+            }
+            else if (navigator.mozGetUserMedia){//FF16a, 17a
+                video.src = stream;
+                video.play();
+            }
+            else if (window.URL) video.src = window.URL.createObjectURL(stream);
+            else video.src = stream;
+        }
+        function stopStream(){
+            if (videoStream){
+                if (videoStream.stop) videoStream.stop();
+                else if (videoStream.msStop) videoStream.msStop();
+                videoStream.onended = null;
+                videoStream = null;
+            }
+            if (video){
+                video.onerror = null;
+                video.pause();
+                if (video.mozSrcObject)
+                    video.mozSrcObject = null;
+                video.src = "";
+            }
+        }
+        function startStream(){
+            if ((typeof window === 'undefined') || (typeof navigator === 'undefined')) log('This page needs a Web browser with the objects window.* and navigator.*!');
+            else if (!(video)) log('HTML context error!');
+            else{
+                log('Get user media…');
+                if (navigator.getUserMedia) navigator.getUserMedia({video:true}, gotStream, noStream);
+                else if (navigator.oGetUserMedia) navigator.oGetUserMedia({video:true}, gotStream, noStream);
+                else if (navigator.mozGetUserMedia) navigator.mozGetUserMedia({video:true}, gotStream, noStream);
+                else if (navigator.webkitGetUserMedia) navigator.webkitGetUserMedia({video:true}, gotStream, noStream);
+                else if (navigator.msGetUserMedia) navigator.msGetUserMedia({video:true, audio:false}, gotStream, noStream);
+                else log('getUserMedia() not available from your Web browser!');
+            }
+        }
+        function videoShotHandler(){
+            if(isColorPickerApp){
+                if(window.handleVideoLoad){
+                    handleVideoLoad(video);
+                }
+            }else if(window.snapWebCamVideo){
+                snapWebCamVideo(video);
+            }
+        }
+        function imageURLHandler(){
+            var path = $("#uploadFileInfo2").val();
+            var urlStr = "imageTest.php?img=" + path;
+
+            $('#colorPickerSlider').find(".slick-slide").eq(2).find(".nextBtn").addClass('disabled');
+            $.ajax({
+                url: urlStr,
+                type: 'POST',
+                success: function(result){
+                    showVisulizerViewHandler();
+                    if(isColorPickerApp){
+                        $('#imageHolder').attr('src', result);
+                    }else if(window.snapSelectedImage){
+                        snapSelectedImage(path);
+                    }
+                },
+                error: function(){
+                    alert("something went wrong. Please try again!");
+                    $('#colorPickerSlider').find(".slick-slide").eq(2).find(".nextBtn").removeClass('disabled');
+                }
+            });
+            // temp
+            /*if(window.snapSelectedImage){
+                snapSelectedImage(path);
+            }*/
+        }
+		
+        //==========COLOR CALCULATOR==========//
+        $('#colorCalculator').slick({
+            infinite: false,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            arrows:false,
+            dots:false,
+            draggable:false,
+            swipe:false,
+            touchMove:false,
+            adaptiveHeight:true,
+            fade:true
         });
         
         /*Color Calculator Step Navigation*/
@@ -209,11 +457,27 @@ $(document).ready(function(e) {
             }
         });
         
-        /*UPLOAD PICTURE*/
-		$(':file').change(function(){
-			$('.profileModal .inside').hide();
-			$(this).closest('.profileModal').addClass('fileUpload');
+        //==========Prorange Small Slider==========//
+		$("#prorangeSlider").slick({
+			arrows:true,
+			dots:false,
+			infinite:false,
+            speed:500,
+			slidesToShow:1,
+  			slidesToScroll:1,
+            nextArrow: '<span class="glyphicon glyphicon-menu-right"></span>',
+  			prevArrow: '<span class="glyphicon glyphicon-menu-left"></span>'
 		});
+		
+        //==========Blog Masonry==========//
+		/*$('.grid').masonry({
+		  // options
+		  itemSelector: '.grid-item',
+		  fitWidth: true,
+		  percentPosition: true,
+		  columnWidth: '.grid-sizer',
+  		  gutter: '.gutter-sizer',
+		});*/
         
         //productList used
         $(".productListButton").click(function(e){
@@ -285,6 +549,12 @@ $(document).ready(function(e) {
                 }
             });
             
+            //tools viewport
+            if(verge.inViewport($('.essentialToolsViewport'),(5/100)*$(window).height() * -1)){
+                $('.floatingfooter').addClass('slideDown');
+            }else{
+                $('.floatingfooter').removeClass('slideDown');
+            }
         }
         
         function initViewport(){
@@ -309,6 +579,9 @@ $(document).ready(function(e) {
             elem.addClass(animClass);
         }
         
+        //Tooltip
+        $('[data-toggle="tooltip"]').tooltip();
+        
         //color therapy
         $(".askExpertBtn").click(function(e){
             e.preventDefault();
@@ -317,6 +590,8 @@ $(document).ready(function(e) {
         $(".askExpertPopup .close").click(function(){
            $(".colorTherapy").removeClass('expertForm');
         });
+        
+		$('#expertForm').validate();        
         
         /*TimeLine Select*/
         var currentRoomStep=0;
@@ -347,27 +622,6 @@ $(document).ready(function(e) {
         /*tab switch callback*/
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {            
             initLazy();
-        });
-        
-        /*color Pallete Switcher*/
-        $('#colorPalleteSwitcher .primaryColorWrapper a.color').click(function(e) {
-            e.preventDefault();
-            var index = $(this).parent().index();
-            
-            if(!$(this).parent('.colorHolder').hasClass('active')){
-                $('#colorPalleteSwitcher .primaryColorWrapper .colorHolder.active').removeClass('active');
-                $('#colorPalleteSwitcher .primaryColorWrapper .colorHolder').eq(index).addClass('active');
-                
-                $('#colorPalleteSwitcher .subColorWrapper .subColorContainer.active').removeClass('active');
-                $('#colorPalleteSwitcher .subColorWrapper .subColorContainer').eq(index).addClass('active');
-            }
-            
-            $('#colorPalleteSwitcher .subColorWrapper a.color').removeClass('active');
-            currentColorElem = $('#subColorScroll .subColorContainer').eq(index).find('.colorHolder').eq(0).find('.color');
-            selectedColor=currentColorElem.attr('color');
-            currentColorElem.addClass('active');
-            
-            $('#paintBtn').css('color',selectedColor);
         });
         
         /*Switch Tab on select change*/
@@ -433,8 +687,85 @@ $(document).ready(function(e) {
                 tooltip_position:'bottom'
             });
         }
+        //grid
+        //Grid.init();
     });
     /*Window Load Ends*/
+    
+    //lazy loader    
+    initLazy();
+	
+	/* My Profile */
+	$('#myProfileform').validate({
+		rules:{
+			name:"required",
+			email:{
+			required:true,
+			email:true
+			}
+		}
+	});
+	
+	$('#changePasswordform').validate({
+		rules:{
+			name:"required",
+			email:{
+			required:true,
+			email:true
+			}
+		}
+	});
+	
+	/* Login & Register */
+	$('#loginForm').validate({
+		rules:{
+			name:"required",
+			email:{
+			required:true,
+			email:true
+			},
+			
+			loginPassword:{     
+			required:true,     
+			}
+		}
+	});
 
+	$('#registerForm').validate({
+		rules:{
+			name:"required",
+			email:{
+			required:true,
+			email:true
+			},
+			
+			password:{     
+			required:true,     
+			},
+		
+		mobile:{
+			required:true,
+			digits:true
+			}
+		}
+	});
+	
 });
+
+//Global Function - lazy loader
+function initLazy(){
+    $('.lazy').Lazy({
+        bind: "event",
+        afterLoad: function(element){
+            if(element.is("img")){
+                element.closest('.lazyImg').addClass('loaded');
+                element.addClass('fadeIn animated');
+            }else{
+                element.addClass('loaded');
+                element.addClass('fadeIn animated');
+            }
+        },
+        visibleOnly:true
+    });
+}
 
